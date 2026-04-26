@@ -391,32 +391,32 @@ export default function App() {
               {/* Floating transcript */}
               <div style={{
                 position: "absolute", bottom: 0, left: 0, right: 0,
-                padding: "0 24px 32px", display: "flex", flexDirection: "column",
-                justifyContent: "flex-end", gap: 12,
-                pointerEvents: "none", maxHeight: 180, overflow: "hidden",
+                padding: "0 24px 24px", display: "flex", flexDirection: "column",
+                justifyContent: "flex-end", gap: 10,
+                pointerEvents: "none", maxHeight: 150, overflow: "hidden",
                 zIndex: 5,
               }}>
                 <AnimatePresence mode="popLayout">
                   {recentVoice.map(msg => (
                     <motion.div key={msg.id}
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 15, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.15 } }}
-                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.12 } }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       style={{
-                        display: "flex", alignItems: "flex-start", gap: 10,
-                        padding: "12px 16px", borderRadius: 16, maxWidth: "90%", backdropFilter: "blur(24px)",
-                        boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                        display: "flex", alignItems: "flex-start", gap: 8,
+                        padding: "10px 14px", borderRadius: 14, maxWidth: "85%", backdropFilter: "blur(24px)",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
                         transition: "all 0.3s ease",
                         ...(msg.role === "user"
                           ? { alignSelf: "flex-end", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }
                           : { alignSelf: "flex-start", background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.22)" }),
                       }}
                     >
-                      <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", flexShrink: 0, marginTop: 3, color: msg.role === "user" ? "rgba(255,255,255,0.4)" : "#a5b4fc", fontFamily: "'DM Mono', monospace" }}>
+                      <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", flexShrink: 0, marginTop: 3, color: msg.role === "user" ? "rgba(255,255,255,0.35)" : "#a5b4fc", fontFamily: "'DM Mono', monospace" }}>
                         {msg.role === "user" ? "YOU" : "AI"}
                       </span>
-                      <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "rgba(255,255,255,0.9)", margin: 0, fontWeight: 450 }}>{msg.text}</p>
+                      <p style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.9)", margin: 0 }}>{msg.text}</p>
                     </motion.div>
                   ))}
                 </AnimatePresence>
