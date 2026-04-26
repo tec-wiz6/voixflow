@@ -46,7 +46,10 @@ export default function App() {
         </motion.div>
 
         {/* Central Orb Segment */}
-        <div className="relative group cursor-pointer" onClick={isConnected ? disconnect : connect}>
+        <div
+          className="relative group cursor-pointer"
+          onClick={isConnected ? disconnect : connect}
+        >
           <AudioOrb 
             isListening={isListening} 
             isSpeaking={isSpeaking} 
@@ -65,8 +68,12 @@ export default function App() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col gap-2"
               >
-                <h1 className="text-2xl font-bold tracking-tight text-white mb-1">AURA Voice Interface</h1>
-                <p className="text-sm text-white/30 font-medium tracking-wide italic">Tap the orb to initialize dialogue</p>
+                <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
+                  AURA Voice Interface
+                </h1>
+                <p className="text-sm text-white/30 font-medium tracking-wide italic">
+                  Tap the orb to initialize dialogue
+                </p>
               </motion.div>
             ) : (
               <motion.div
@@ -76,12 +83,21 @@ export default function App() {
                 className="flex flex-col gap-2"
               >
                 <p className="text-lg font-light text-white/80 transition-all duration-500 italic">
-                  {isSpeaking ? "Analyzing resonance..." : isListening ? "Listening for intent..." : "Session established."}
+                  {isSpeaking
+                    ? "Analyzing resonance..."
+                    : isListening
+                    ? "Listening for intent..."
+                    : "Session established."}
                 </p>
                 <div className="flex justify-center gap-1.5 mt-2 h-1 overflow-hidden w-40 mx-auto">
-                   {[1,2,3,4,5,6].map(i => (
-                     <div key={i} className={`flex-1 rounded-full transition-all duration-300 ${isConnected ? 'bg-emerald-500/30' : 'bg-white/5'}`} />
-                   ))}
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 rounded-full transition-all duration-300 ${
+                        isConnected ? 'bg-emerald-500/30' : 'bg-white/5'
+                      }`}
+                    />
+                  ))}
                 </div>
               </motion.div>
             )}
@@ -95,10 +111,12 @@ export default function App() {
           className="mt-12 flex items-center gap-4 bg-white/[0.03] backdrop-blur-3xl border border-white/5 p-4 rounded-[2.5rem] shadow-2xl"
         >
           <button 
-             onClick={isConnected ? disconnect : connect}
-             className={`h-14 w-14 rounded-full flex items-center justify-center transition-all ${
-               isConnected ? 'bg-white text-black shadow-lg shadow-white/10' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-             }`}
+            onClick={isConnected ? disconnect : connect}
+            className={`h-14 w-14 rounded-full flex items-center justify-center transition-all ${
+              isConnected
+                ? 'bg-white text-black shadow-lg shadow-white/10'
+                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+            }`}
           >
             {isConnected ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
           </button>
@@ -113,7 +131,9 @@ export default function App() {
             onClick={disconnect}
             disabled={!isConnected}
             className={`h-14 w-14 rounded-full flex items-center justify-center transition-all ${
-              isConnected ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20' : 'bg-white/5 text-white/10 cursor-not-allowed'
+              isConnected
+                ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
+                : 'bg-white/5 text-white/10 cursor-not-allowed'
             }`}
           >
             <PhoneOff className="w-6 h-6" />
@@ -122,8 +142,10 @@ export default function App() {
 
         {/* Small Privacy Indicator */}
         <div className="mt-8 flex items-center gap-2 opacity-20 hover:opacity-100 transition-opacity cursor-default">
-           <div className="w-1 h-1 rounded-full bg-white" />
-           <span className="text-[9px] font-mono tracking-widest uppercase text-white">End-to-End Encryption Active</span>
+          <div className="w-1 h-1 rounded-full bg-white" />
+          <span className="text-[9px] font-mono tracking-widest uppercase text-white">
+            End-to-End Encryption Active
+          </span>
         </div>
       </main>
 
