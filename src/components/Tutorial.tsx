@@ -37,22 +37,22 @@ const STEPS: TutorialStep[] = [
   },
   {
     id: "history",
-    title: "Your conversation history",
-    body: "All past sessions live here. Tap the clock icon to browse, switch between, or delete old conversations.",
+    title: "History",
+    body: "All past conversations live here. Tap to switch between or manage sessions.",
     placement: "bottom",
     targetSelector: "[data-tutorial='history-btn']",
   },
   {
-    id: "delete-chat",
-    title: "Deleting a chat",
-    body: "Inside History, hover over any conversation and tap the trash icon to remove it.",
-    placement: "center",
-    centered: true,
+    id: "settings",
+    title: "Settings",
+    body: "Customize your name or replay this tutorial anytime from the settings menu.",
+    placement: "bottom",
+    targetSelector: "[data-tutorial='settings-btn']",
   },
   {
     id: "done",
     title: "You're all set! 🎉",
-    body: "That's everything. You can replay this tutorial anytime from Settings. Now go have a conversation!",
+    body: "Ready to flow? Go have a natural conversation with VoixFlow!",
     placement: "center",
     centered: true,
   },
@@ -114,18 +114,18 @@ export function Tutorial({ userName, onComplete, onSkip }: TutorialProps) {
     }
 
     const PAD = 16;
-    const W   = Math.min(320, window.innerWidth - 40);
+    const W   = Math.min(260, window.innerWidth - 40);
     const isPC = window.innerWidth > 768;
 
     // For central or right-aligned targets on PC, prefer a left placement to avoid covering the UI
     if (isPC && step.placement !== "center") {
-      const isRightAligned = spotlight.left > window.innerWidth * 0.6;
-      const isCentral = spotlight.left > window.innerWidth * 0.4 && spotlight.left < window.innerWidth * 0.6;
+      const isOrb = step.targetSelector === "[data-tutorial='orb']";
+      const isCentralOrRight = isOrb || spotlight.left > window.innerWidth * 0.4;
       
-      if (isRightAligned || isCentral) {
+      if (isCentralOrRight) {
         return {
           position: "fixed",
-          top: Math.max(20, spotlight.top - 40),
+          top: isOrb ? spotlight.top + spotlight.height / 2 - 80 : Math.max(20, spotlight.top - 20),
           left: Math.max(20, spotlight.left - W - PAD * 2),
           width: W,
         };
