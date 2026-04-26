@@ -1,0 +1,426 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap");
+
+/* ─── Design tokens ─────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:           #05050f;
+  --bg-deep:      #020208;
+  --bg-surface:   rgba(255,255,255,0.025);
+  --bg-raised:    rgba(255,255,255,0.045);
+
+  /* Glass */
+  --glass:        rgba(255,255,255,0.034);
+  --glass-hover:  rgba(255,255,255,0.058);
+  --glass-border: rgba(255,255,255,0.07);
+  --glass-border-strong: rgba(255,255,255,0.12);
+
+  /* Accent palette */
+  --indigo:       #6366f1;
+  --violet:       #8b5cf6;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --indigo-dim:   rgba(99,102,241,0.15);
+  --violet-dim:   rgba(139,92,246,0.12);
+  --cyan-dim:     rgba(6,182,212,0.10);
+
+  /* Text */
+  --text:         #f0f0fc;
+  --text-dim:     rgba(240,240,252,0.55);
+  --text-muted:   rgba(240,240,252,0.28);
+  --text-ghost:   rgba(240,240,252,0.12);
+
+  /* Semantic */
+  --danger:       rgba(239,68,68,0.85);
+  --danger-dim:   rgba(239,68,68,0.09);
+  --danger-border:rgba(239,68,68,0.22);
+
+  /* Typography */
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body:    "DM Sans", system-ui, sans-serif;
+  --font-mono:    "DM Mono", "Fira Code", monospace;
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-2xl: 24px;
+  --r-pill: 999px;
+
+  /* Shadows */
+  --shadow-indigo: 0 4px 24px rgba(99,102,241,0.30);
+  --shadow-sm:     0 2px 8px  rgba(0,0,0,0.35);
+  --shadow-md:     0 8px 32px rgba(0,0,0,0.45);
+  --shadow-lg:     0 20px 60px rgba(0,0,0,0.55);
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast:  0.15s;
+  --t-base:  0.22s;
+  --t-slow:  0.38s;
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  /* Prevent font size inflation on mobile */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent iOS bounce scroll at root */
+  overscroll-behavior: none;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  /* Use dynamic viewport height — fixes mobile browser chrome overlap */
+  height: 100dvh;
+}
+
+/* ─── Scrollbars ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 3px; height: 3px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.07); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.13); }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.07) transparent; }
+
+/* ─── Base elements ─────────────────────────────────────────────────────────── */
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea {
+  font-family: var(--font-body);
+  color: var(--text);
+}
+
+/* Remove textarea resize handle globally */
+textarea { resize: none; }
+
+/* Prevent blue flash on tap (mobile) */
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ─── Atmospheric background ────────────────────────────────────────────────── */
+/* Used as <div class="atmo" /> fixed behind everything */
+.atmo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 5%,  rgba(99,102,241,0.13) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 65% at 85% 95%,  rgba(139,92,246,0.11) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 45% at 65% 25%,  rgba(6,182,212,0.06)  0%, transparent 50%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(5,5,15,0.75)     0%, transparent 100%);
+  /* No filter: blur here — blur is applied per-layer in the radial-gradients above
+     to avoid the expensive full-viewport blur repaint on scroll/resize */
+}
+
+/* ─── Grain texture ─────────────────────────────────────────────────────────── */
+/* Inline SVG noise — no external image request */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  will-change: auto;
+}
+
+/* ─── Glass morphism utilities ──────────────────────────────────────────────── */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: rgba(255,255,255,0.055);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid var(--glass-border-strong);
+}
+
+.glass-dark {
+  background: rgba(5,5,15,0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ─── Gradient text ─────────────────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, var(--text) 40%, rgba(240,240,252,0.45));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-accent {
+  background: linear-gradient(135deg, var(--indigo), var(--violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Accent button ─────────────────────────────────────────────────────────── */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: var(--r-xl);
+  background: linear-gradient(135deg, var(--indigo) 0%, var(--violet) 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: var(--shadow-indigo);
+  transition: box-shadow var(--t-base) ease, transform var(--t-fast) var(--ease-spring);
+  cursor: pointer;
+  border: none;
+}
+.btn-accent:hover  { box-shadow: 0 6px 32px rgba(99,102,241,0.45); transform: translateY(-1px); }
+.btn-accent:active { transform: scale(0.97); }
+
+/* ─── Ghost button ──────────────────────────────────────────────────────────── */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--r-md);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  cursor: pointer;
+}
+.btn-ghost:hover  { background: var(--glass-hover); color: var(--text); border-color: var(--glass-border-strong); }
+.btn-ghost:active { transform: scale(0.97); }
+
+/* ─── Input ─────────────────────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  outline: none;
+  caret-color: var(--indigo);
+  transition: border-color var(--t-base), box-shadow var(--t-base);
+}
+.input::placeholder { color: var(--text-muted); }
+.input:focus {
+  border-color: rgba(99,102,241,0.45);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.10);
+}
+
+/* ─── Chip / badge ──────────────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.chip-indigo {
+  background: var(--indigo-dim);
+  border: 1px solid rgba(99,102,241,0.25);
+  color: #a5b4fc;
+}
+.chip-danger {
+  background: var(--danger-dim);
+  border: 1px solid var(--danger-border);
+  color: #fca5a5;
+}
+
+/* ─── Status dot ────────────────────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.status-dot.active {
+  background: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(6,182,212,0.2), 0 0 10px rgba(6,182,212,0.7);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+.status-dot.speaking {
+  background: var(--violet);
+  box-shadow: 0 0 0 2px rgba(139,92,246,0.2), 0 0 10px rgba(139,92,246,0.7);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+/* ─── Orb cursor hint ───────────────────────────────────────────────────────── */
+/* Makes the orb tap target obvious on desktop */
+.orb-tap-target {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ─── Message bubble base ───────────────────────────────────────────────────── */
+.bubble {
+  max-width: 72%;
+  padding: 10px 14px;
+  border-radius: var(--r-lg);
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(240,240,252,0.88);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.bubble-user {
+  border-bottom-right-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+}
+.bubble-ai {
+  border-bottom-left-radius: 4px;
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.17);
+}
+
+/* ─── Transcript bubble (voice mode floating) ───────────────────────────────── */
+.transcript-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  max-width: 88%;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(240,240,252,0.82);
+}
+.transcript-bubble.user {
+  align-self: flex-end;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.transcript-bubble.ai {
+  align-self: flex-start;
+  background: rgba(99,102,241,0.09);
+  border: 1px solid rgba(99,102,241,0.18);
+}
+
+/* ─── Session item (history sheet) ─────────────────────────────────────────── */
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.055);
+  background: rgba(255,255,255,0.025);
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.session-item:hover       { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.09); }
+.session-item.active      { background: rgba(99,102,241,0.10); border-color: rgba(99,102,241,0.26); }
+
+/* ─── Animations ────────────────────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.25); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Staggered entry for list items */
+.stagger > * {
+  animation: fade-up 0.3s var(--ease-out-expo) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger > *:nth-child(4) { animation-delay: 0.16s; }
+.stagger > *:nth-child(5) { animation-delay: 0.20s; }
+
+/* ─── Focus visible (accessibility) ────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 3px;
+}
+/* Suppress focus ring for mouse users */
+:focus:not(:focus-visible) { outline: none; }
+
+/* ─── Mobile safe areas ─────────────────────────────────────────────────────── */
+/* Respect iPhone notch / Dynamic Island / Android gesture bar */
+@supports (padding: max(0px)) {
+  .safe-top    { padding-top:    max(16px, env(safe-area-inset-top)); }
+  .safe-bottom { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .safe-left   { padding-left:   max(20px, env(safe-area-inset-left)); }
+  .safe-right  { padding-right:  max(20px, env(safe-area-inset-right)); }
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Selection color ───────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(99,102,241,0.35);
+  color: #fff;
+}
