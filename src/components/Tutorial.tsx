@@ -143,16 +143,21 @@ export function Tutorial({ userName, onComplete, onSkip }: TutorialProps) {
           ),
           width: W,
         };
-      case "top":
+      case "top": {
+        const isOrb = step.targetSelector === "[data-tutorial='orb']";
+        // If it's the orb on mobile, we allow the tooltip to overlap the orb significantly
+        // to gain vertical space and prevent it from hitting the top of the screen.
+        const verticalOffset = isOrb ? -40 : PAD;
         return {
           position: "fixed",
-          bottom: window.innerHeight - spotlight.top + PAD,
+          bottom: window.innerHeight - (isOrb ? spotlight.top + 20 : spotlight.top) + verticalOffset,
           left: Math.min(
             Math.max(spotlight.left + spotlight.width / 2 - W / 2, 20),
             window.innerWidth - W - 20
           ),
           width: W,
         };
+      }
       default:
         return {
           position: "fixed",
