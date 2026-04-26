@@ -46,13 +46,19 @@ function wordCount(s: string) {
 
 // ─── Volume analyser ─────────────────────────────────────────────────────────
 function createVolumeAnalyser(stream: MediaStream, onVolume: (v: number) => void): () => void {
-  const ctx     = new AudioContext();
+  const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+  if (!AudioCtx) return () => {};
+
+  const ctx     = new AudioCtx();
   const source  = ctx.createMediaStreamSource(stream);
   const analyser = ctx.createAnalyser();
   analyser.fftSize = 256;
   source.connect(analyser);
   const data    = new Uint8Array(analyser.frequencyBinCount);
   let running   = true;
+
+  // iOS requires resume() on user gesture
+  if (ctx.state === 'suspended') ctx.resume();
 
   const tick = () => {
     if (!running) return;
@@ -385,6 +391,18 @@ export function useVoiceChat() {
   // ── Connect ──────────────────────────────────────────────────────────────────
   const connect = useCallback(async () => {
     try {
+      // 🔊 PRIME AUDIO FOR iOS
+      // This "unlocks" playback for the session during the user gesture (orb tap)
+      try {
+        const silent = new SpeechSynthesisUtterance('');
+        silent.volume = 0;
+        window.speechSynthesis.speak(silent);
+        
+        // Dummy audio to unlock Audio objects
+        const unlockAudio = new Audio();
+        unlockAudio.play().catch(() => {});
+      } catch {}
+
       setError(null);
       const sessionId = ensureSession();
 
