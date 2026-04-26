@@ -68,39 +68,39 @@ function SettingsModal({ onClose, onReplayTutorial }: { onClose: () => void; onR
         transition={{ type: "spring", damping: 28, stiffness: 320 }}
         style={{
           position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-          zIndex: 61, width: "min(420px, calc(100vw - 40px))",
+          zIndex: 61, width: "min(320px, calc(100vw - 32px))",
           background: "rgba(10,10,24,0.98)", backdropFilter: "blur(32px)",
-          border: "1px solid rgba(255,255,255,0.09)", borderRadius: 24,
-          padding: "28px 24px",
+          border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20,
+          padding: "20px 18px",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Sora', sans-serif", color: "#fff" }}>Settings</h2>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 9, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            <Icon d={ICONS.close} size={14} />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Sora', sans-serif", color: "#fff" }}>Settings</h2>
+          <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+            <Icon d={ICONS.close} size={13} />
           </button>
         </div>
 
         {/* Name */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.06em", display: "block", marginBottom: 8 }}>YOUR NAME</label>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.06em", display: "block", marginBottom: 6 }}>YOUR NAME</label>
           <div style={{ display: "flex", gap: 8 }}>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === "Enter" && save()}
               style={{
-                flex: 1, padding: "10px 14px", borderRadius: 12,
-                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                flex: 1, padding: "8px 12px", borderRadius: 10,
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
                 color: "#fff", fontSize: 14, outline: "none", fontFamily: "'DM Sans', sans-serif",
                 caretColor: "#818cf8",
               }}
             />
             <button onClick={save} style={{
-              padding: "10px 16px", borderRadius: 12,
-              background: saved ? "rgba(34,197,94,0.15)" : "rgba(99,102,241,0.15)",
-              border: `1px solid ${saved ? "rgba(34,197,94,0.3)" : "rgba(99,102,241,0.3)"}`,
-              color: saved ? "#86efac" : "#818cf8", fontSize: 13, fontWeight: 600,
+              padding: "8px 14px", borderRadius: 10,
+              background: saved ? "rgba(34,197,94,0.12)" : "rgba(99,102,241,0.12)",
+              border: `1px solid ${saved ? "rgba(34,197,94,0.2)" : "rgba(99,102,241,0.2)"}`,
+              color: saved ? "#86efac" : "#818cf8", fontSize: 12, fontWeight: 600,
               cursor: "pointer", transition: "all 0.2s", fontFamily: "'DM Sans', sans-serif",
               whiteSpace: "nowrap",
             }}>
@@ -110,19 +110,16 @@ function SettingsModal({ onClose, onReplayTutorial }: { onClose: () => void; onR
         </div>
 
         {/* Replay tutorial */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20 }}>
-          <label style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.06em", display: "block", marginBottom: 8 }}>TUTORIAL</label>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 16 }}>
           <button
             onClick={() => { onClose(); onReplayTutorial(); }}
             style={{
-              width: "100%", padding: "11px", borderRadius: 12,
-              background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)",
-              color: "#a5b4fc", fontSize: 14, fontWeight: 500, cursor: "pointer",
+              width: "100%", padding: "10px", borderRadius: 10,
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+              color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer",
               fontFamily: "'DM Sans', sans-serif", display: "flex", alignItems: "center",
               justifyContent: "center", gap: 8, transition: "background 0.2s",
             }}
-            onMouseEnter={e => e.currentTarget.style.background = "rgba(99,102,241,0.14)"}
-            onMouseLeave={e => e.currentTarget.style.background = "rgba(99,102,241,0.08)"}
           >
             🎓 Replay tutorial
           </button>
@@ -322,8 +319,9 @@ export default function App() {
             >
               <Icon d={ICONS.history} size={15} />
             </button>
-            {/* Settings */}
+            {/* Settings — data-tutorial attr */}
             <button
+              data-tutorial="settings-btn"
               onClick={() => setShowSettings(true)}
               style={{
                 width: 34, height: 34, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
@@ -532,7 +530,13 @@ export default function App() {
             <motion.div key="sheet"
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 320, mass: 0.9 }}
-              style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: "rgba(8,8,20,0.97)", backdropFilter: "blur(32px)", borderTop: "1px solid rgba(255,255,255,0.07)", borderRadius: "24px 24px 0 0", maxHeight: "72vh", display: "flex", flexDirection: "column" }}
+              style={{
+                position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+                width: "min(500px, 100%)", zIndex: 50,
+                background: "rgba(8,8,20,0.97)", backdropFilter: "blur(32px)",
+                borderTop: "1px solid rgba(255,255,255,0.07)", borderRadius: "24px 24px 0 0",
+                maxHeight: "72vh", display: "flex", flexDirection: "column"
+              }}
             >
               <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "14px auto 6px", flexShrink: 0 }} />
 
