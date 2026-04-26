@@ -54,6 +54,8 @@ function SettingsModal({ onClose, onReplayTutorial }: { onClose: () => void; onR
     }
   };
 
+  const isMobile = window.innerWidth < 768;
+
   return (
     <>
       <motion.div
@@ -62,23 +64,31 @@ function SettingsModal({ onClose, onReplayTutorial }: { onClose: () => void; onR
         style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
       />
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 12 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        initial={isMobile ? { y: "100%", x: "-50%" } : { opacity: 0, scale: 0.95, y: -50, x: "-50%" }}
+        animate={isMobile ? { y: 0, x: "-50%" } : { opacity: 1, scale: 1, y: "-50%", x: "-50%" }}
+        exit={isMobile ? { y: "100%", x: "-50%" } : { opacity: 0, scale: 0.95, y: 8, x: "-50%" }}
         transition={{ type: "spring", damping: 28, stiffness: 320 }}
         style={{
-          position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-          zIndex: 61, width: "min(320px, calc(100vw - 32px))",
+          position: "fixed", 
+          ...(isMobile 
+            ? { bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", borderRadius: "24px 24px 0 0" } 
+            : { top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "min(320px, calc(100vw - 32px))", borderRadius: 20 }
+          ),
+          zIndex: 61,
           background: "rgba(10,10,24,0.98)", backdropFilter: "blur(32px)",
-          border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20,
-          padding: "20px 18px",
+          border: isMobile ? "none" : "1px solid rgba(255,255,255,0.09)",
+          borderTop: isMobile ? "1px solid rgba(255,255,255,0.09)" : undefined,
+          padding: isMobile ? "12px 20px 40px" : "20px 18px",
         }}
       >
+        {isMobile && <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 18px" }} />}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Sora', sans-serif", color: "#fff" }}>Settings</h2>
-          <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            <Icon d={ICONS.close} size={13} />
-          </button>
+          {!isMobile && (
+            <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <Icon d={ICONS.close} size={13} />
+            </button>
+          )}
         </div>
 
         {/* Name */}
