@@ -18,14 +18,14 @@ const STEPS: TutorialStep[] = [
     id: "orb-start",
     title: "Tap the orb to talk",
     body: "This glowing orb is your voice button. Tap it once and start speaking — VoixFlow will listen instantly.",
-    placement: "bottom",
+    placement: "top",
     targetSelector: "[data-tutorial='orb']",
   },
   {
     id: "orb-stop",
     title: "Tap again to stop",
     body: "When you're done, tap the orb again. Your conversation is saved automatically and a fresh session begins.",
-    placement: "bottom",
+    placement: "top",
     targetSelector: "[data-tutorial='orb']",
   },
   {
