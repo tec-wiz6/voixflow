@@ -73,7 +73,7 @@ function createVolumeAnalyser(stream: MediaStream, onVolume: (v: number) => void
 }
 
 // ─── TTS fetch ───────────────────────────────────────────────────────────────
-async function fetchTTSAudio(text: string): Promise<HTMLAudioElement | null> {
+async function fetchTTSAudio(text: string): Promise<string | null> {
   const key = env('VITE_DEEPGRAM_API_KEY');
   if (!key) return null;
   try {
@@ -83,10 +83,7 @@ async function fetchTTSAudio(text: string): Promise<HTMLAudioElement | null> {
       body: JSON.stringify({ text }),
     });
     if (!res.ok) return null;
-    const url   = URL.createObjectURL(await res.blob());
-    const audio = new Audio(url);
-    audio.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true });
-    return audio;
+    return URL.createObjectURL(await res.blob());
   } catch { return null; }
 }
 
@@ -119,13 +116,14 @@ export function useVoiceChat() {
 
   // Refs — always fresh, no stale closures
   const recognitionRef    = useRef<any>(null);
-  const audioQueueRef     = useRef<HTMLAudioElement[]>([]);
+  const audioQueueRef     = useRef<string[]>([]);
   const isPlayingRef      = useRef(false);
   const isProcessingRef   = useRef(false);
   const isConnectedRef    = useRef(false);
   const activeIdRef       = useRef<string | null>(null);
   const sessionsRef       = useRef(sessions);
   const stopVolumeRef     = useRef<(() => void) | null>(null);
+  const sharedAudioRef    = useRef<HTMLAudioElement | null>(null);
 
   // Keep refs in sync
   useEffect(() => { activeIdRef.current = activeSessionId; }, [activeSessionId]);
@@ -133,6 +131,16 @@ export function useVoiceChat() {
   useEffect(() => {
     try { localStorage.setItem('voixflow_sessions_v1', JSON.stringify(sessions)); } catch {}
   }, [sessions]);
+
+  // Handle cleanup
+  useEffect(() => {
+    return () => {
+      if (sharedAudioRef.current) {
+        sharedAudioRef.current.pause();
+        sharedAudioRef.current = null;
+      }
+    };
+  }, []);
 
   // ── Derived ─────────────────────────────────────────────────────────────────
   const currentMessages = activeSessionId
@@ -215,10 +223,20 @@ export function useVoiceChat() {
     setIsSpeaking(true);
 
     while (audioQueueRef.current.length > 0) {
-      const audio = audioQueueRef.current.shift()!;
+      const url = audioQueueRef.current.shift()!;
+      if (!sharedAudioRef.current) break;
+
       await new Promise<void>(resolve => {
-        audio.onended = () => resolve();
-        audio.onerror = () => resolve();
+        const audio = sharedAudioRef.current!;
+        audio.src = url;
+        audio.onended = () => {
+          URL.revokeObjectURL(url);
+          resolve();
+        };
+        audio.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve();
+        };
         audio.play().catch(resolve);
       });
     }
@@ -236,6 +254,10 @@ export function useVoiceChat() {
   const stopAudio = useCallback(() => {
     audioQueueRef.current = [];
     isPlayingRef.current  = false;
+    if (sharedAudioRef.current) {
+      sharedAudioRef.current.pause();
+      sharedAudioRef.current.src = "";
+    }
     speechSynthesis.cancel();
     setIsSpeaking(false);
   }, []);
@@ -243,9 +265,9 @@ export function useVoiceChat() {
   // Enqueue a sentence — fetch TTS in background, plays in order
   const enqueueSentence = useCallback(async (sentence: string) => {
     if (!sentence.trim()) return;
-    const audio = await fetchTTSAudio(sentence);
-    if (audio) {
-      audioQueueRef.current.push(audio);
+    const url = await fetchTTSAudio(sentence);
+    if (url) {
+      audioQueueRef.current.push(url);
       drainQueue();
     } else {
       // Browser fallback
@@ -394,13 +416,24 @@ export function useVoiceChat() {
       // 🔊 PRIME AUDIO FOR iOS
       // This "unlocks" playback for the session during the user gesture (orb tap)
       try {
-        const silent = new SpeechSynthesisUtterance('');
+        if (!sharedAudioRef.current) {
+          sharedAudioRef.current = new Audio();
+          sharedAudioRef.current.preload = "auto";
+        }
+        
+        // Play an actual quiet sound or at least a confirmed gesture speak
+        const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          if (ctx.state === 'suspended') await ctx.resume();
+        }
+
+        const silent = new SpeechSynthesisUtterance(' ');
         silent.volume = 0;
         window.speechSynthesis.speak(silent);
         
-        // Dummy audio to unlock Audio objects
-        const unlockAudio = new Audio();
-        unlockAudio.play().catch(() => {});
+        // Dummy play to unlock the shared audio element
+        sharedAudioRef.current.play().catch(() => {});
       } catch {}
 
       setError(null);
