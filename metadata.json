@@ -1,6 +1,0 @@
-{
-  "name": "VOXFLOW AI",
-  "description": "Next-generation professional AI voice assistant with real-time multimodal vision, screen understanding, and high-fidelity glassmorphism interface.",
-  "requestFramePermissions": ["camera", "microphone", "display-capture"],
-  "majorCapabilities": ["AI_AGENT"]
-}
