@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { GoogleGenAI, Modality } from "@google/genai";
 import { arrayBufferToBase64, base64ToArrayBuffer, float32ToInt16, int16ToFloat32 } from '../lib/audio-utils';
 
@@ -38,25 +38,17 @@ export function useGeminiLive() {
     }
     audioQueueRef.current = [];
     isPlayingRef.current = false;
+
     setIsConnected(false);
     setIsListening(false);
     setIsSpeaking(false);
     setVolume(0);
   }, []);
 
-  const playNextInQueue = useCallback(async () => {
-    if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
-
+  const playNextInQueue = useCallback(() => {
     const audioContext = audioContextRef.current;
     if (!audioContext) return;
-
-    if (audioContext.state === "suspended") {
-      try {
-        await audioContext.resume();
-      } catch (e) {
-        console.warn("Failed to resume AudioContext before playback:", e);
-      }
-    }
+    if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
 
     isPlayingRef.current = true;
     setIsSpeaking(true);
@@ -68,6 +60,7 @@ export function useGeminiLive() {
     const source = audioContext.createBufferSource();
     source.buffer = buffer;
 
+    // Simple output path + visualizer (unchanged conceptually)
     const analyzer = audioContext.createAnalyser();
     source.connect(analyzer);
     source.connect(audioContext.destination);
@@ -88,7 +81,6 @@ export function useGeminiLive() {
         setIsSpeaking(false);
         setVolume(0);
       } else {
-        // Chain next chunk
         playNextInQueue();
       }
     };
@@ -103,24 +95,29 @@ export function useGeminiLive() {
 
       const ai = new GoogleGenAI({ apiKey });
 
-      // Request microphone (works on Android, iOS, desktop)
+      // 1) Get mic (same as before)
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      // iOS‑friendly AudioContext: no forced sampleRate, resume explicitly
-      const audioContext = new AudioContext();
+      // 2) AudioContext:
+      //    - Use 16 kHz so format matches Gemini expectations.
+      //    - Immediately resume once (helps across browsers, including iOS).
+      const audioContext = new AudioContext({ sampleRate: 16000 });
       await audioContext.resume();
       audioContextRef.current = audioContext;
 
-      console.log("AudioContext sampleRate:", audioContext.sampleRate);
-      console.log("AudioContext initial state:", audioContext.state);
-      audioContext.onstatechange = () => {
-        console.log("AudioContext state changed:", audioContext.state);
-      };
+      // Tiny warm‑up (very short silent buffer) → helps some iOS devices unblock audio.
+      try {
+        const buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+      } catch {
+        // ignore warm-up errors
+      }
 
       const source = audioContext.createMediaStreamSource(stream);
-
-      // ScriptProcessor is deprecated but widely supported; keep buffer size small
       const processor = audioContext.createScriptProcessor(4096, 1, 1);
       processorRef.current = processor;
 
@@ -138,8 +135,9 @@ export function useGeminiLive() {
           onopen: () => {
             setIsConnected(true);
 
+            // Mic pipeline – very close to original
             source.connect(processor);
-            // Do NOT connect processor to destination (we only use it for analysis / capture)
+            // Do NOT send processor output to speakers: just use it to capture audio
             // processor.connect(audioContext.destination);
 
             processor.onaudioprocess = (e) => {
@@ -156,15 +154,13 @@ export function useGeminiLive() {
                   s.sendRealtimeInput({
                     audio: {
                       data: base64Data,
-                      mimeType: `audio/pcm;rate=${audioContext.sampleRate}`,
+                      mimeType: 'audio/pcm;rate=16000',
                     },
                   })
                 )
-                .catch((err) => {
-                  console.error("Error sending audio chunk:", err);
-                });
+                .catch(() => {});
 
-              // Visualizer logic for input
+              // Visualizer logic for input (unchanged)
               let sum = 0;
               for (let i = 0; i < inputData.length; i++) sum += Math.abs(inputData[i]);
               const vol = (sum / inputData.length) * 500;
@@ -201,24 +197,21 @@ export function useGeminiLive() {
                 setLatestResponse((prev) => prev + textPart.text);
                 setTranscription(textPart.text || "");
               }
-            } catch (err) {
-              console.error("Error handling onmessage:", err);
+            } catch {
+              // ignore message errors for now
             }
           },
           onclose: () => {
-            console.log("Live session closed");
             cleanup();
           },
-          onerror: (err) => {
-            console.error("Live Session Error:", err);
+          onerror: () => {
             cleanup();
           },
         },
       });
 
       sessionRef.current = sessionPromise;
-    } catch (err) {
-      console.error("Failed to connect to Gemini Live:", err);
+    } catch {
       cleanup();
     }
   }, [cleanup, playNextInQueue]);
@@ -231,12 +224,8 @@ export function useGeminiLive() {
             video: { data: base64Data, mimeType: 'image/jpeg' },
           })
         )
-        .then(() => {
-          setVisionStatus("Active HUD");
-        })
-        .catch((err) => {
-          console.error("Error sending video frame:", err);
-        });
+        .then(() => setVisionStatus("Active HUD"))
+        .catch(() => {});
     }
   }, []);
 
