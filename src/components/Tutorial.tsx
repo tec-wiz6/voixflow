@@ -117,14 +117,19 @@ export function Tutorial({ userName, onComplete, onSkip }: TutorialProps) {
     const W   = Math.min(320, window.innerWidth - 40);
     const isPC = window.innerWidth > 768;
 
-    // For the orb steps on PC, prefer a left/top-left placement to avoid the center-bottom orb area
-    if (isPC && (step.id === "orb-start" || step.id === "orb-stop")) {
-      return {
-        position: "fixed",
-        top: spotlight.top,
-        left: Math.max(20, spotlight.left - W - PAD * 2),
-        width: W,
-      };
+    // For central or right-aligned targets on PC, prefer a left placement to avoid covering the UI
+    if (isPC && step.placement !== "center") {
+      const isRightAligned = spotlight.left > window.innerWidth * 0.6;
+      const isCentral = spotlight.left > window.innerWidth * 0.4 && spotlight.left < window.innerWidth * 0.6;
+      
+      if (isRightAligned || isCentral) {
+        return {
+          position: "fixed",
+          top: Math.max(20, spotlight.top - 40),
+          left: Math.max(20, spotlight.left - W - PAD * 2),
+          width: W,
+        };
+      }
     }
 
     switch (step.placement) {
