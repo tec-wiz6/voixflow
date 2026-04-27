@@ -71,17 +71,17 @@ function SettingsModal({ onClose, onReplayTutorial }: { onClose: () => void; onR
         style={{
           position: "fixed", 
           ...(isMobile 
-            ? { bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", borderRadius: "24px 24px 0 0" } 
+            ? { bottom: 12, left: "50%", transform: "translateX(-50%)", width: "calc(100% - 24px)", borderRadius: 24 } 
             : { top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "min(320px, calc(100vw - 32px))", borderRadius: 20 }
           ),
           zIndex: 61,
           background: "rgba(10,10,24,0.98)", backdropFilter: "blur(32px)",
-          border: isMobile ? "none" : "1px solid rgba(255,255,255,0.09)",
-          borderTop: isMobile ? "1px solid rgba(255,255,255,0.09)" : undefined,
-          padding: isMobile ? "12px 20px 40px" : "20px 18px",
+          border: "1px solid rgba(255,255,255,0.09)",
+          padding: isMobile ? "16px 20px 24px" : "20px 18px",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
         }}
       >
-        {isMobile && <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 18px" }} />}
+        {isMobile && <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 16px", flexShrink: 0 }} />}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Sora', sans-serif", color: "#fff" }}>Settings</h2>
           {!isMobile && (
@@ -204,6 +204,8 @@ export default function App() {
     if (isConnected) disconnect();
     else connect();
   }, [isConnected, connect, disconnect]);
+
+  const isMobile = window.innerWidth < 768;
 
   const recentVoice = currentMessages
     .filter(m => m.type === "voice")
@@ -538,14 +540,19 @@ export default function App() {
               style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }} />
 
             <motion.div key="sheet"
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              initial={{ y: "100%", x: "-50%" }} animate={{ y: 0, x: "-50%" }} exit={{ y: "100%", x: "-50%" }}
               transition={{ type: "spring", damping: 32, stiffness: 320, mass: 0.9 }}
               style={{
-                position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-                width: "min(500px, 100%)", zIndex: 50,
+                position: "fixed", 
+                ...(isMobile 
+                  ? { bottom: 12, left: "50%", width: "calc(100% - 24px)", borderRadius: 24 } 
+                  : { bottom: 0, left: "50%", width: "min(500px, 100%)", borderRadius: "24px 24px 0 0" }
+                ),
+                zIndex: 50,
                 background: "rgba(8,8,20,0.97)", backdropFilter: "blur(32px)",
-                borderTop: "1px solid rgba(255,255,255,0.07)", borderRadius: "24px 24px 0 0",
-                maxHeight: "72vh", display: "flex", flexDirection: "column"
+                border: "1px solid rgba(255,255,255,0.07)",
+                maxHeight: "72vh", display: "flex", flexDirection: "column",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
               }}
             >
               <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "14px auto 6px", flexShrink: 0 }} />
